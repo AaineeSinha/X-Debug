@@ -14,7 +14,113 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      code_history: {
+        Row: {
+          ai_score: number | null
+          alternative_fixes: Json | null
+          causal_graph: Json | null
+          code: string
+          created_at: string | null
+          filename: string
+          id: string
+          language: string
+          root_cause: string | null
+          runtime_trace: Json | null
+          static_issues: Json | null
+          suggestions: Json | null
+          user_id: string
+        }
+        Insert: {
+          ai_score?: number | null
+          alternative_fixes?: Json | null
+          causal_graph?: Json | null
+          code: string
+          created_at?: string | null
+          filename: string
+          id?: string
+          language: string
+          root_cause?: string | null
+          runtime_trace?: Json | null
+          static_issues?: Json | null
+          suggestions?: Json | null
+          user_id: string
+        }
+        Update: {
+          ai_score?: number | null
+          alternative_fixes?: Json | null
+          causal_graph?: Json | null
+          code?: string
+          created_at?: string | null
+          filename?: string
+          id?: string
+          language?: string
+          root_cause?: string | null
+          runtime_trace?: Json | null
+          static_issues?: Json | null
+          suggestions?: Json | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      feedback: {
+        Row: {
+          analysis_id: string | null
+          comments: string | null
+          created_at: string | null
+          id: string
+          rating: number | null
+          user_id: string
+        }
+        Insert: {
+          analysis_id?: string | null
+          comments?: string | null
+          created_at?: string | null
+          id?: string
+          rating?: number | null
+          user_id: string
+        }
+        Update: {
+          analysis_id?: string | null
+          comments?: string | null
+          created_at?: string | null
+          id?: string
+          rating?: number | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "feedback_analysis_id_fkey"
+            columns: ["analysis_id"]
+            isOneToOne: false
+            referencedRelation: "code_history"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          created_at: string | null
+          email: string | null
+          id: string
+          name: string | null
+          theme: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          email?: string | null
+          id: string
+          name?: string | null
+          theme?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          email?: string | null
+          id?: string
+          name?: string | null
+          theme?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
