@@ -1,19 +1,24 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import { Upload, Play, LogOut } from "lucide-react";
+import { Upload, Play, LogOut, History, Moon, Sun } from "lucide-react";
+import { CodeEditor } from "@/components/CodeEditor";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 const Dashboard = () => {
   const [language, setLanguage] = useState<"python" | "c">("python");
   const [code, setCode] = useState("");
+  const [filename, setFilename] = useState("");
   const [analyzing, setAnalyzing] = useState(false);
+  const [errors, setErrors] = useState<any[]>([]);
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -24,6 +29,13 @@ const Dashboard = () => {
     };
     checkAuth();
 
+    // Load code from history if passed via navigation state
+    if (location.state?.code) {
+      setCode(location.state.code);
+      setLanguage(location.state.language || "python");
+      setFilename(location.state.filename || "");
+    }
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (!session) {
         navigate("/auth");
@@ -31,7 +43,7 @@ const Dashboard = () => {
     });
 
     return () => subscription.unsubscribe();
-  }, [navigate]);
+  }, [navigate, location]);
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
@@ -42,6 +54,7 @@ const Dashboard = () => {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    setFilename(file.name);
     const reader = new FileReader();
     reader.onload = (e) => {
       const content = e.target?.result as string;
@@ -57,13 +70,37 @@ const Dashboard = () => {
       return;
     }
 
+    if (!filename.trim()) {
+      toast.error("Please enter a filename");
+      return;
+    }
+
     setAnalyzing(true);
     try {
-      // Mock analysis for now - we'll implement the real Edge Function next
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      navigate("/results", { state: { code, language } });
+      const { data, error } = await supabase.functions.invoke('analyze-code', {
+        body: { 
+          code, 
+          language,
+          filename,
+        }
+      });
+
+      if (error) throw error;
+
+      // Update inline errors
+      setErrors(data.staticIssues || []);
+
+      navigate("/results", { 
+        state: { 
+          code, 
+          language,
+          filename,
+          ...data 
+        } 
+      });
     } catch (error: any) {
       toast.error(error.message || "Analysis failed");
+      console.error('Analysis error:', error);
     } finally {
       setAnalyzing(false);
     }
@@ -73,10 +110,17 @@ const Dashboard = () => {
     <div className="min-h-screen p-6">
       <header className="max-w-7xl mx-auto mb-8 flex items-center justify-between">
         <h1 className="text-3xl font-bold glow-text">X-Debug</h1>
-        <Button variant="outline" onClick={handleSignOut}>
-          <LogOut className="w-4 h-4 mr-2" />
-          Sign Out
-        </Button>
+        <div className="flex items-center gap-2">
+          <ThemeToggle />
+          <Button variant="outline" onClick={() => navigate("/history")}>
+            <History className="w-4 h-4 mr-2" />
+            History
+          </Button>
+          <Button variant="outline" onClick={handleSignOut}>
+            <LogOut className="w-4 h-4 mr-2" />
+            Sign Out
+          </Button>
+        </div>
       </header>
 
       <div className="max-w-7xl mx-auto">
@@ -90,6 +134,16 @@ const Dashboard = () => {
                   <TabsTrigger value="c">C (.c)</TabsTrigger>
                 </TabsList>
               </Tabs>
+            </div>
+
+            <div>
+              <Label className="text-lg font-semibold mb-3 block">Filename</Label>
+              <Input
+                value={filename}
+                onChange={(e) => setFilename(e.target.value)}
+                placeholder={`example.${language === "python" ? "py" : "c"}`}
+                className="mb-4"
+              />
             </div>
 
             <div>
@@ -109,11 +163,11 @@ const Dashboard = () => {
                 </Button>
               </div>
 
-              <Textarea
+              <CodeEditor
                 value={code}
-                onChange={(e) => setCode(e.target.value)}
-                placeholder={`Paste your ${language === "python" ? "Python" : "C"} code here...`}
-                className="font-mono min-h-[400px] bg-input/50"
+                onChange={setCode}
+                language={language}
+                errors={errors}
               />
             </div>
 

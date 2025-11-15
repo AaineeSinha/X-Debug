@@ -7,7 +7,8 @@ All colors MUST be HSL.
 */
 
 @layer base {
-  :root {
+  :root,
+  :root.dark {
     --background: 220 25% 8%;
     --foreground: 0 0% 98%;
 
@@ -48,6 +49,49 @@ All colors MUST be HSL.
     --gradient-glass: linear-gradient(135deg, hsl(220 20% 15% / 0.8), hsl(220 25% 12% / 0.6));
     --shadow-glow: 0 0 30px hsl(180 100% 50% / 0.3);
     --shadow-card: 0 8px 32px hsl(220 25% 5% / 0.5);
+  }
+
+  :root.light {
+    --background: 0 0% 100%;
+    --foreground: 220 25% 10%;
+
+    --card: 0 0% 98%;
+    --card-foreground: 220 25% 10%;
+
+    --popover: 0 0% 98%;
+    --popover-foreground: 220 25% 10%;
+
+    --primary: 180 100% 35%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 280 60% 50%;
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 220 20% 90%;
+    --muted-foreground: 220 25% 40%;
+
+    --accent: 180 80% 40%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 70% 50%;
+    --destructive-foreground: 0 0% 100%;
+
+    --success: 140 70% 40%;
+    --success-foreground: 0 0% 100%;
+
+    --warning: 45 100% 50%;
+    --warning-foreground: 0 0% 100%;
+
+    --border: 220 20% 85%;
+    --input: 220 20% 92%;
+    --ring: 180 100% 35%;
+
+    --radius: 0.75rem;
+
+    --gradient-cyber: linear-gradient(135deg, hsl(180 100% 80% / 0.3), hsl(280 60% 80% / 0.3));
+    --gradient-glass: linear-gradient(135deg, hsl(0 0% 98% / 0.8), hsl(0 0% 95% / 0.6));
+    --shadow-glow: 0 0 20px hsl(180 100% 35% / 0.2);
+    --shadow-card: 0 8px 32px hsl(220 25% 80% / 0.3);
   }
 }
 
