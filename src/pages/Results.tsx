@@ -6,8 +6,10 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, AlertCircle, CheckCircle, Info, Download, Copy, Check } from "lucide-react";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { ArrowLeft, AlertCircle, CheckCircle, Info, Download, Copy, Check, ChevronDown, Wand2 } from "lucide-react";
 import { toast } from "sonner";
+import { AIAssistant } from "@/components/AIAssistant";
 
 const Results = () => {
   const navigate = useNavigate();
@@ -80,8 +82,11 @@ const Results = () => {
     setTimeout(() => setCopiedFix(null), 2000);
   };
 
-  const handleApplyFix = (originalLine: string, newLine: string) => {
-    const updatedCode = code.replace(originalLine, newLine);
+  const handleApplyFix = (solutionCode: string, lineNumber: number) => {
+    const lines = code.split('\n');
+    lines[lineNumber - 1] = solutionCode;
+    const updatedCode = lines.join('\n');
+    
     navigate('/dashboard', {
       state: {
         code: updatedCode,
@@ -90,6 +95,28 @@ const Results = () => {
       }
     });
     toast.success('Fix applied! Code updated in editor.');
+  };
+
+  const handleReplaceAll = () => {
+    let updatedCode = code;
+    const lines = updatedCode.split('\n');
+    
+    staticIssues.forEach((issue: any) => {
+      if (issue.solutions && issue.solutions[0]) {
+        lines[issue.line - 1] = issue.solutions[0].code;
+      }
+    });
+    
+    updatedCode = lines.join('\n');
+    
+    navigate('/dashboard', {
+      state: {
+        code: updatedCode,
+        language,
+        filename,
+      }
+    });
+    toast.success('All fixes applied! Code updated in editor.');
   };
 
   const getSeverityIcon = (severity: string) => {
@@ -145,53 +172,129 @@ const Results = () => {
             <p className="text-muted-foreground">{rootCause}</p>
           </Card>
 
-          <Card className="glass-card p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-semibold">Static Analysis Issues</h2>
-              <div className="flex gap-2">
-                <Input
-                  placeholder="Search issues..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-64"
-                />
-                <Tabs value={filterType} onValueChange={setFilterType}>
-                  <TabsList>
-                    <TabsTrigger value="all">All</TabsTrigger>
-                    <TabsTrigger value="syntax">Syntax</TabsTrigger>
-                    <TabsTrigger value="logic">Logic</TabsTrigger>
-                    <TabsTrigger value="runtime">Runtime</TabsTrigger>
-                    <TabsTrigger value="security">Security</TabsTrigger>
-                  </TabsList>
-                </Tabs>
-              </div>
-            </div>
-            
-            {filteredIssues.length === 0 ? (
-              <p className="text-center text-muted-foreground py-8">
-                {searchTerm || filterType !== "all" 
-                  ? "No issues match your filters" 
-                  : "No issues detected"}
-              </p>
-            ) : (
-              <div className="space-y-3">
-                {filteredIssues.map((issue: any, idx: number) => (
-                  <div key={idx} className="flex items-start gap-3 p-3 rounded-lg bg-muted/50">
-                    {getSeverityIcon(issue.severity)}
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-1">
-                        <p className="font-medium">{issue.message}</p>
-                        <Badge variant="outline" className="text-xs">
-                          {issue.type}
+        {/* Static Issues with Solutions */}
+        <Card className="p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-2xl font-bold text-foreground">Issues Found</h2>
+            <Badge variant="outline">{filteredIssues.length} issues</Badge>
+          </div>
+
+          <div className="mb-4 flex gap-2">
+            <Input
+              placeholder="Search issues..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="max-w-xs"
+            />
+            <Tabs value={filterType} onValueChange={setFilterType}>
+              <TabsList>
+                <TabsTrigger value="all">All</TabsTrigger>
+                <TabsTrigger value="syntax">Syntax</TabsTrigger>
+                <TabsTrigger value="runtime">Runtime</TabsTrigger>
+                <TabsTrigger value="security">Security</TabsTrigger>
+                <TabsTrigger value="style">Style</TabsTrigger>
+              </TabsList>
+            </Tabs>
+          </div>
+
+          <div className="space-y-4">
+            {filteredIssues.map((issue: any, idx: number) => (
+              <Card key={idx} className="p-4 border-l-4" style={{
+                borderLeftColor: 
+                  issue.severity === "error" ? "hsl(var(--destructive))" :
+                  issue.severity === "warning" ? "hsl(var(--warning))" :
+                  "hsl(var(--success))"
+              }}>
+                <div className="flex items-start gap-3">
+                  {getSeverityIcon(issue.severity)}
+                  <div className="flex-1 space-y-3">
+                    <div>
+                      <div className="flex items-center gap-2 mb-2">
+                        <Badge variant="outline">{issue.type}</Badge>
+                        <Badge variant="secondary">Line {issue.line}</Badge>
+                        <Badge 
+                          variant={
+                            issue.severity === "error" ? "destructive" :
+                            issue.severity === "warning" ? "default" :
+                            "secondary"
+                          }
+                        >
+                          {issue.severity}
                         </Badge>
                       </div>
-                      <p className="text-sm text-muted-foreground">Line {issue.line}</p>
+                      <p className="text-sm font-medium text-foreground mb-2">{issue.message}</p>
+                      {issue.beginnerExplanation && (
+                        <p className="text-sm text-muted-foreground bg-muted p-3 rounded-md">
+                          💡 {issue.beginnerExplanation}
+                        </p>
+                      )}
                     </div>
+
+                    {issue.solutions && issue.solutions.length > 0 && (
+                      <div className="space-y-2">
+                        <p className="text-sm font-semibold text-foreground">
+                          🔧 {issue.solutions.length} Solution{issue.solutions.length > 1 ? 's' : ''}:
+                        </p>
+                        {issue.solutions.map((solution: any, sIdx: number) => (
+                          <Collapsible key={sIdx}>
+                            <Card className="bg-muted/50">
+                              <CollapsibleTrigger className="w-full p-3 flex items-center justify-between hover:bg-muted/80 transition-colors">
+                                <div className="flex items-center gap-2">
+                                  <Badge variant="outline" className="text-xs">
+                                    {solution.difficulty}
+                                  </Badge>
+                                  <span className="text-sm font-medium">
+                                    {sIdx + 1}. {solution.title}
+                                  </span>
+                                </div>
+                                <ChevronDown className="w-4 h-4" />
+                              </CollapsibleTrigger>
+                              <CollapsibleContent className="p-3 pt-0">
+                                <p className="text-sm text-muted-foreground mb-3">
+                                  {solution.description}
+                                </p>
+                                <div className="bg-background p-3 rounded border border-border font-mono text-xs mb-3">
+                                  <pre className="whitespace-pre-wrap">{solution.code}</pre>
+                                </div>
+                                <div className="flex gap-2">
+                                  <Button
+                                    size="sm"
+                                    onClick={() => handleApplyFix(solution.code, issue.line)}
+                                    className="flex-1"
+                                  >
+                                    <Wand2 className="w-3 h-3 mr-1" />
+                                    Apply This Fix
+                                  </Button>
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() => handleCopyFix(solution.code, `${idx}-${sIdx}`)}
+                                  >
+                                    {copiedFix === `${idx}-${sIdx}` ? (
+                                      <Check className="w-3 h-3" />
+                                    ) : (
+                                      <Copy className="w-3 h-3" />
+                                    )}
+                                  </Button>
+                                </div>
+                              </CollapsibleContent>
+                            </Card>
+                          </Collapsible>
+                        ))}
+                      </div>
+                    )}
                   </div>
-                ))}
-              </div>
-            )}
-          </Card>
+                </div>
+              </Card>
+            ))}
+          </div>
+        </Card>
+
+        {/* AI Assistant Chatbot */}
+        <div>
+          <h2 className="text-2xl font-bold mb-4 text-foreground">Ask AI Assistant</h2>
+          <AIAssistant />
+        </div>
 
           {alternativeFixes.length > 0 && (
             <Card className="glass-card p-6">
