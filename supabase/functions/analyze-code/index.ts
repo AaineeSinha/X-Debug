@@ -94,6 +94,20 @@ interface Issue {
   type: string;
 }
 
+interface Issue {
+  severity: string;
+  message: string;
+  line: number;
+  type: string;
+  beginnerExplanation: string;
+  solutions: Array<{
+    title: string;
+    description: string;
+    code: string;
+    difficulty: string;
+  }>;
+}
+
 function analyzeStaticIssues(code: string, language: string): Issue[] {
   const issues: Issue[] = [];
   const lines = code.split('\n');
@@ -107,6 +121,21 @@ function analyzeStaticIssues(code: string, language: string): Issue[] {
           message: 'Import statement should be at the top of the file',
           line: idx + 1,
           type: 'syntax',
+          beginnerExplanation: "Hey! In Python, it's best practice to put all your import statements at the very top of your file. This makes your code more organized and helps Python load everything it needs right away.",
+          solutions: [
+            {
+              title: "Move import to top",
+              description: "Simply cut this import line and paste it at the very beginning of your file, before any other code.",
+              code: line.trim(),
+              difficulty: "Easy"
+            },
+            {
+              title: "Group with other imports",
+              description: "If you have other imports, add this one with them at the top. Keep standard library imports first, then third-party imports.",
+              code: `# At the top of your file\n${line.trim()}\n# ... other imports`,
+              difficulty: "Easy"
+            }
+          ]
         });
       }
       if (line.match(/\bprint\(/)) {
@@ -115,6 +144,27 @@ function analyzeStaticIssues(code: string, language: string): Issue[] {
           message: 'Consider using logging instead of print statements',
           line: idx + 1,
           type: 'style',
+          beginnerExplanation: "Print statements are great for quick debugging, but for production code, using Python's logging module is much better! It lets you control when messages appear and saves them to files.",
+          solutions: [
+            {
+              title: "Keep print (Beginner-friendly)",
+              description: "For learning and simple scripts, print() is totally fine! You can keep it as is.",
+              code: line.trim(),
+              difficulty: "Easy"
+            },
+            {
+              title: "Use logging module",
+              description: "Import logging at the top and use logging.info() instead. This is more professional and flexible.",
+              code: line.replace(/print\((.*)\)/, 'logging.info($1)'),
+              difficulty: "Intermediate"
+            },
+            {
+              title: "Add debug logging",
+              description: "Use logging.debug() for development messages that you can turn off in production.",
+              code: line.replace(/print\((.*)\)/, 'logging.debug($1)'),
+              difficulty: "Intermediate"
+            }
+          ]
         });
       }
       if (line.match(/except:/)) {
@@ -122,7 +172,28 @@ function analyzeStaticIssues(code: string, language: string): Issue[] {
           severity: 'warning',
           message: 'Bare except clause catches all exceptions',
           line: idx + 1,
-          type: 'logic',
+          type: 'error-handling',
+          beginnerExplanation: "Using 'except:' without specifying an error type is risky! It catches ALL errors, even ones you didn't expect. This can hide bugs and make debugging harder.",
+          solutions: [
+            {
+              title: "Catch specific exception",
+              description: "Replace 'except:' with a specific error type like 'except ValueError:' to only catch the errors you expect.",
+              code: line.replace(/except:/, 'except ValueError:'),
+              difficulty: "Easy"
+            },
+            {
+              title: "Catch multiple exceptions",
+              description: "You can catch multiple specific error types using a tuple.",
+              code: line.replace(/except:/, 'except (ValueError, TypeError):'),
+              difficulty: "Intermediate"
+            },
+            {
+              title: "Use Exception base class",
+              description: "If you really need to catch most errors, use 'except Exception:' - this is safer than bare except.",
+              code: line.replace(/except:/, 'except Exception as e:'),
+              difficulty: "Easy"
+            }
+          ]
         });
       }
       if (line.match(/==\s*None/) || line.match(/None\s*==/)) {
@@ -131,6 +202,15 @@ function analyzeStaticIssues(code: string, language: string): Issue[] {
           message: 'Use "is None" instead of "== None"',
           line: idx + 1,
           type: 'style',
+          beginnerExplanation: "In Python, when checking if something is None, it's better to use 'is None' instead of '== None'. This is because 'is' checks if they're the exact same object in memory, which is what you want for None!",
+          solutions: [
+            {
+              title: "Use 'is None'",
+              description: "Replace '== None' with 'is None' for proper None checking.",
+              code: line.replace(/==\s*None/, 'is None').replace(/None\s*==/, 'is None'),
+              difficulty: "Easy"
+            }
+          ]
         });
       }
     });
@@ -142,6 +222,21 @@ function analyzeStaticIssues(code: string, language: string): Issue[] {
           message: 'gets() is unsafe, use fgets() instead',
           line: idx + 1,
           type: 'security',
+          beginnerExplanation: "The gets() function is super dangerous! It doesn't check how much data you're reading, which means someone could send way too much data and crash your program or even hack it. Always use fgets() instead!",
+          solutions: [
+            {
+              title: "Replace with fgets()",
+              description: "Use fgets() which lets you set a maximum size. Much safer!",
+              code: line.replace(/gets\((.*?)\)/, 'fgets($1, sizeof($1), stdin)'),
+              difficulty: "Easy"
+            },
+            {
+              title: "Use scanf with width",
+              description: "Another option is scanf() with a width specifier to limit input size.",
+              code: line.replace(/gets\((.*?)\)/, 'scanf("%99s", $1)  // Adjust 99 to your buffer size'),
+              difficulty: "Easy"
+            }
+          ]
         });
       }
       if (line.includes('malloc') && !code.includes('free')) {
@@ -150,6 +245,21 @@ function analyzeStaticIssues(code: string, language: string): Issue[] {
           message: 'Potential memory leak: malloc without corresponding free',
           line: idx + 1,
           type: 'runtime',
+          beginnerExplanation: "When you allocate memory with malloc(), you need to free() it when you're done! Think of it like borrowing a book from the library - you have to return it. If you don't, your program will eat up more and more memory.",
+          solutions: [
+            {
+              title: "Add free() call",
+              description: "Add a free() statement when you're done using the memory.",
+              code: `${line.trim()}\n// ... use the pointer ...\nfree(${line.match(/(\w+)\s*=/)?.[1] || 'ptr'});`,
+              difficulty: "Easy"
+            },
+            {
+              title: "Check malloc first, then free",
+              description: "Always check if malloc succeeded before using memory, then free it.",
+              code: `${line.trim()}\nif (ptr == NULL) return -1;\n// Use memory\nfree(ptr);`,
+              difficulty: "Intermediate"
+            }
+          ]
         });
       }
       if (line.match(/=\s*NULL/) && !line.includes('free')) {
@@ -158,6 +268,15 @@ function analyzeStaticIssues(code: string, language: string): Issue[] {
           message: 'Pointer set to NULL without freeing memory',
           line: idx + 1,
           type: 'runtime',
+          beginnerExplanation: "You're setting a pointer to NULL, but did you free the memory it was pointing to first? If not, that memory is now lost forever (memory leak)! Always free() before setting to NULL.",
+          solutions: [
+            {
+              title: "Free before NULL",
+              description: "Call free() on the pointer before setting it to NULL.",
+              code: `free(${line.split('=')[0].trim()});\n${line.trim()}`,
+              difficulty: "Easy"
+            }
+          ]
         });
       }
     });

@@ -1,1 +1,10 @@
 project_id = "vlsuidiubiowxcfnqefa"
+
+[functions.analyze-code]
+verify_jwt = false
+
+[functions.export-report]
+verify_jwt = false
+
+[functions.ai-chat]
+verify_jwt = false
