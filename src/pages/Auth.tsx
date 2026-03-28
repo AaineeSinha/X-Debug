@@ -117,22 +117,14 @@ const Auth = () => {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => handleOAuthSignIn("google")}
-            >
-              Google
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => handleOAuthSignIn("github")}
-            >
-              GitHub
-            </Button>
-          </div>
+          <Button
+            type="button"
+            variant="outline"
+            className="w-full"
+            onClick={() => handleOAuthSignIn("google")}
+          >
+            Google
+          </Button>
         </div>
 
         <div className="mt-6 text-center text-sm">
