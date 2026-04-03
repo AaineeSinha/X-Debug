@@ -32,6 +32,7 @@ const Results = () => {
   const [filterType, setFilterType] = useState<string>("all");
   const [exporting, setExporting] = useState(false);
   const [copiedFix, setCopiedFix] = useState<string | null>(null);
+  const [copiedFullCode, setCopiedFullCode] = useState(false);
 
   if (!code) {
     navigate("/dashboard");
