@@ -12,11 +12,24 @@ interface Message {
   content: string;
 }
 
-export const AIAssistant = () => {
+interface AIAssistantProps {
+  code?: string;
+  language?: string;
+  filename?: string;
+  issues?: Array<{ message: string; line: number; severity: string; type: string }>;
+}
+
+export const AIAssistant = ({ code, language, filename, issues }: AIAssistantProps) => {
+  const contextSummary = code
+    ? `The user's file "${filename || "untitled"}" (${language || "unknown"}) has ${issues?.length || 0} issues:\n${(issues || []).map(i => `- Line ${i.line} [${i.severity}]: ${i.message}`).join("\n")}\n\nCode:\n\`\`\`\n${code.slice(0, 2000)}\n\`\`\``
+    : "";
+
   const [messages, setMessages] = useState<Message[]>([
     {
       role: "assistant",
-      content: "Hi there! 👋 I'm your friendly coding assistant. Ask me anything about your code errors, and I'll explain them in simple terms!",
+      content: code
+        ? `Hi there! 👋 I've already looked at your code in **${filename}** and found ${issues?.length || 0} issue${(issues?.length || 0) !== 1 ? "s" : ""}. Ask me anything — like "explain the error on line 5" or "why is my code crashing?" — and I'll break it down in simple words! 😊`
+        : "Hi there! 👋 I'm your friendly coding assistant. Ask me anything about your code errors, and I'll explain them in simple terms!",
     },
   ]);
   const [input, setInput] = useState("");
@@ -39,7 +52,11 @@ export const AIAssistant = () => {
 
     try {
       const { data, error } = await supabase.functions.invoke("ai-chat", {
-        body: { message: userMessage, conversationHistory: messages },
+        body: {
+          message: userMessage,
+          conversationHistory: messages,
+          codeContext: contextSummary,
+        },
       });
 
       if (error) throw error;
@@ -75,6 +92,11 @@ export const AIAssistant = () => {
       <div className="p-4 border-b border-border flex items-center gap-2">
         <Bot className="w-5 h-5 text-primary" />
         <h3 className="font-semibold text-foreground">AI Coding Assistant</h3>
+        {code && (
+          <span className="text-xs text-muted-foreground ml-auto">
+            Context: {filename} • {issues?.length || 0} issues
+          </span>
+        )}
       </div>
 
       <ScrollArea className="flex-1 p-4" ref={scrollRef}>
@@ -130,7 +152,7 @@ export const AIAssistant = () => {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyPress={handleKeyPress}
-            placeholder="Ask me about your code..."
+            placeholder={code ? "Ask about your errors, e.g. 'explain line 5'..." : "Ask me about your code..."}
             disabled={isLoading}
             className="flex-1"
           />

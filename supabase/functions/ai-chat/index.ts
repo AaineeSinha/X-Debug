@@ -11,17 +11,14 @@ serve(async (req) => {
   }
 
   try {
-    const { message, conversationHistory = [] } = await req.json();
+    const { message, conversationHistory = [], codeContext = "" } = await req.json();
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
 
     if (!LOVABLE_API_KEY) {
       throw new Error('LOVABLE_API_KEY not configured');
     }
 
-    const messages = [
-      {
-        role: "system",
-        content: `You are a super friendly coding buddy helping someone learn programming! 🎯 Imagine you're explaining code to a friend who's just starting out.
+    const systemContent = `You are a super friendly coding buddy helping someone learn programming! 🎯 Imagine you're explaining code to a friend who's just starting out.
 
 Your style should be:
 1. 💬 Casual and conversational - like texting a friend, not writing a textbook
@@ -40,8 +37,10 @@ Examples of your tone:
 - Instead of: "Implement error handling for NULL pointer dereference"
 - Say: "Let's add a quick check to make sure your pointer isn't NULL before using it - it's like checking if someone gave you their real phone number before calling! 📱"
 
-Always read their actual code carefully and use their variable names (like if they use 'a' and 'b', mention 'a' and 'b' - don't say 'x' and 'y'!). Make them feel like they're chatting with a helpful friend who really gets their code! 🚀`
-      },
+Always read their actual code carefully and use their variable names (like if they use 'a' and 'b', mention 'a' and 'b' - don't say 'x' and 'y'!). Make them feel like they're chatting with a helpful friend who really gets their code! 🚀${codeContext ? `\n\n--- CONTEXT ---\nThe user has just analyzed their code and these are the results. Use this context to answer their questions:\n${codeContext}` : ""}`;
+
+    const messages = [
+      { role: "system", content: systemContent },
       ...conversationHistory.map((msg: any) => ({
         role: msg.role,
         content: msg.content

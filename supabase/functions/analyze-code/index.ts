@@ -34,6 +34,9 @@ serve(async (req) => {
     // Alternative Fixes with confidence scores
     const alternativeFixes = generateAlternativeFixes(staticIssues, code, language);
     
+    // Full Corrected Code
+    const correctedCode = generateFullCorrectedCode(code, language, staticIssues);
+    
     // Causal Graph
     const causalGraph = generateCausalGraph(code, language);
 
@@ -73,6 +76,7 @@ serve(async (req) => {
         rootCause,
         suggestions,
         alternativeFixes,
+        correctedCode,
         causalGraph,
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -453,6 +457,32 @@ function generateAlternativeFixes(issues: Issue[], code: string, language: strin
   });
 
   return fixes;
+}
+
+function generateFullCorrectedCode(code: string, language: string, issues: Issue[]): string {
+  const lines = code.split('\n');
+  const correctedLines = [...lines];
+
+  // Apply the first solution for each issue
+  issues.forEach(issue => {
+    if (issue.solutions && issue.solutions.length > 0) {
+      const bestFix = issue.solutions[0].code;
+      // Only replace single-line fixes (avoid multi-line replacements conflicting)
+      if (!bestFix.includes('\n')) {
+        correctedLines[issue.line - 1] = bestFix;
+      }
+    }
+  });
+
+  // Add missing imports for Python
+  if (language === 'python') {
+    const hasLogging = issues.some(i => i.message.includes('print'));
+    if (hasLogging && !code.includes('import logging')) {
+      correctedLines.unshift('import logging');
+    }
+  }
+
+  return correctedLines.join('\n');
 }
 
 function generateCausalGraph(code: string, language: string) {
