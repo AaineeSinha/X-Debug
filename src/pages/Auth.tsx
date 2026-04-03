@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { lovable } from "@/integrations/lovable";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -53,17 +54,17 @@ const Auth = () => {
     }
   };
 
-  const handleOAuthSignIn = async (provider: "google" | "github") => {
+  const handleOAuthSignIn = async () => {
     try {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider,
-        options: {
-          redirectTo: `${window.location.origin}/dashboard`,
-        },
+      const result = await lovable.auth.signInWithOAuth("google", {
+        redirect_uri: window.location.origin,
       });
-      if (error) throw error;
+      if (result.error) throw result.error;
+      if (!result.redirected) {
+        navigate("/dashboard");
+      }
     } catch (error: any) {
-      toast.error(error.message || "OAuth sign-in failed");
+      toast.error(error.message || "Google sign-in failed");
     }
   };
 
@@ -121,7 +122,7 @@ const Auth = () => {
             type="button"
             variant="outline"
             className="w-full"
-            onClick={() => handleOAuthSignIn("google")}
+            onClick={() => handleOAuthSignIn()}
           >
             Google
           </Button>
