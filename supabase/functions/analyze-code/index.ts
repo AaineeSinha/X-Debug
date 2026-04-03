@@ -76,6 +76,7 @@ serve(async (req) => {
         rootCause,
         suggestions,
         alternativeFixes,
+        correctedCode,
         causalGraph,
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
