@@ -34,6 +34,9 @@ serve(async (req) => {
     // Alternative Fixes with confidence scores
     const alternativeFixes = generateAlternativeFixes(staticIssues, code, language);
     
+    // Full Corrected Code
+    const correctedCode = generateFullCorrectedCode(code, language, staticIssues);
+    
     // Causal Graph
     const causalGraph = generateCausalGraph(code, language);
 
