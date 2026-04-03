@@ -292,10 +292,55 @@ const Results = () => {
           </div>
         </Card>
 
+        {/* Full Corrected Code */}
+        {correctedCode && (
+          <Card className="glass-card p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-semibold flex items-center gap-2">
+                <FileCode2 className="w-5 h-5 text-primary" />
+                Full Corrected Code
+              </h2>
+              <div className="flex gap-2">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => {
+                    navigator.clipboard.writeText(correctedCode);
+                    setCopiedFullCode(true);
+                    toast.success("Corrected code copied!");
+                    setTimeout(() => setCopiedFullCode(false), 2000);
+                  }}
+                >
+                  {copiedFullCode ? <Check className="w-4 h-4 mr-1" /> : <Copy className="w-4 h-4 mr-1" />}
+                  {copiedFullCode ? "Copied!" : "Copy Code"}
+                </Button>
+                <Button
+                  size="sm"
+                  onClick={() => {
+                    navigate('/dashboard', {
+                      state: { code: correctedCode, language, filename }
+                    });
+                    toast.success("Full corrected code applied!");
+                  }}
+                >
+                  <Wand2 className="w-4 h-4 mr-1" />
+                  Replace Entire Code
+                </Button>
+              </div>
+            </div>
+            <p className="text-sm text-muted-foreground mb-3">
+              Here's your complete code with all suggested fixes applied. You can copy it or replace your current code entirely.
+            </p>
+            <div className="bg-background border border-border rounded-md p-4 font-mono text-sm overflow-x-auto max-h-[400px] overflow-y-auto">
+              <pre className="whitespace-pre-wrap">{correctedCode}</pre>
+            </div>
+          </Card>
+        )}
+
         {/* AI Assistant Chatbot */}
         <div>
           <h2 className="text-2xl font-bold mb-4 text-foreground">Ask AI Assistant</h2>
-          <AIAssistant />
+          <AIAssistant code={code} language={language} filename={filename} issues={staticIssues} />
         </div>
 
           {alternativeFixes.length > 0 && (
