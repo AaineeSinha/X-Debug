@@ -24,6 +24,7 @@ const Results = () => {
     rootCause = "",
     suggestions = [],
     alternativeFixes = [],
+    correctedCode = "",
     causalGraph,
   } = location.state || {};
 
