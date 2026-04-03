@@ -498,15 +498,3 @@ function generateCausalGraph(code: string, language: string) {
     ],
   };
 }
-  return {
-    nodes: [
-      { id: 'input', label: 'User Input', type: 'source' },
-      { id: 'process', label: 'Processing', type: 'logic' },
-      { id: 'output', label: 'Output', type: 'sink' },
-    ],
-    edges: [
-      { from: 'input', to: 'process', label: 'data flow' },
-      { from: 'process', to: 'output', label: 'result' },
-    ],
-  };
-}
