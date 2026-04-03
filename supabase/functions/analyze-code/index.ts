@@ -455,7 +455,45 @@ function generateAlternativeFixes(issues: Issue[], code: string, language: strin
   return fixes;
 }
 
+function generateFullCorrectedCode(code: string, language: string, issues: Issue[]): string {
+  const lines = code.split('\n');
+  const correctedLines = [...lines];
+
+  // Apply the first solution for each issue
+  issues.forEach(issue => {
+    if (issue.solutions && issue.solutions.length > 0) {
+      const bestFix = issue.solutions[0].code;
+      // Only replace single-line fixes (avoid multi-line replacements conflicting)
+      if (!bestFix.includes('\n')) {
+        correctedLines[issue.line - 1] = bestFix;
+      }
+    }
+  });
+
+  // Add missing imports for Python
+  if (language === 'python') {
+    const hasLogging = issues.some(i => i.message.includes('print'));
+    if (hasLogging && !code.includes('import logging')) {
+      correctedLines.unshift('import logging');
+    }
+  }
+
+  return correctedLines.join('\n');
+}
+
 function generateCausalGraph(code: string, language: string) {
+  return {
+    nodes: [
+      { id: 'input', label: 'User Input', type: 'source' },
+      { id: 'process', label: 'Processing', type: 'logic' },
+      { id: 'output', label: 'Output', type: 'sink' },
+    ],
+    edges: [
+      { from: 'input', to: 'process', label: 'data flow' },
+      { from: 'process', to: 'output', label: 'result' },
+    ],
+  };
+}
   return {
     nodes: [
       { id: 'input', label: 'User Input', type: 'source' },
