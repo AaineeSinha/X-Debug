@@ -1,73 +1,112 @@
-# Welcome to your Lovable project
+# X-Debug 🐞⚡
 
-## Project info
+**AI-Powered Code Debugging Web Application**
 
-**URL**: https://lovable.dev/projects/f7a673c7-72da-4779-b607-1fd188f6718c
+## 📌 Overview
 
-## How can I edit this code?
+**X-Debug** is an AI-powered Progressive Web Application (PWA) designed to help developers quickly analyze, debug, and improve their code. The platform allows users to paste code snippets and receive intelligent feedback, suggestions, and debugging assistance using AI.
 
-There are several ways of editing your application.
+The application is built using **modern web technologies such as React, TypeScript, Vite, Tailwind CSS, and Supabase**, making it fast, scalable, and responsive across devices.
 
-**Use Lovable**
+---
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/f7a673c7-72da-4779-b607-1fd188f6718c) and start prompting.
+## 🚀 Features
 
-Changes made via Lovable will be committed automatically to this repo.
+* 🔍 **AI Code Analysis** – Analyze code and detect possible bugs or improvements.
+* 🤖 **AI Chat Assistant** – Interact with an AI assistant for debugging guidance.
+* 📝 **Interactive Code Editor** – Write or paste code directly in the browser.
+* 📊 **Debugging Results Dashboard** – View insights and suggested fixes.
+* 📁 **History Tracking** – Access previously analyzed code.
+* 🌙 **Dark / Light Mode** – Toggle themes for better developer experience.
+* 📱 **Progressive Web App (PWA)** – Install and use like a native application.
+* 🔐 **Authentication System** – Secure login using Supabase.
 
-**Use your preferred IDE**
+---
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+## 🛠️ Tech Stack
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+**Frontend**
 
-Follow these steps:
+* React
+* TypeScript
+* Vite
+* Tailwind CSS
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+**Backend / Services**
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+* Supabase
+* Serverless Edge Functions
 
-# Step 3: Install the necessary dependencies.
-npm i
+**AI Integration**
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+* AI-powered debugging analysis
+
+---
+
+## 📂 Project Structure
+
+```
+X-Debug
+│
+├── public/              # Static files
+├── src/
+│   ├── components/      # UI and functional components
+│   ├── pages/           # Application pages
+│   ├── hooks/           # Custom React hooks
+│   ├── contexts/        # Context providers
+│   ├── integrations/    # External service integrations
+│   └── lib/             # Utility functions
+│
+├── supabase/            # Database & edge functions
+├── package.json
+├── vite.config.ts
+└── tailwind.config.ts
+```
+
+---
+
+## ⚙️ Installation
+
+Clone the repository:
+
+```
+git clone https://github.com/AaineeSinha/X-Debug.git
+```
+
+Navigate to the project folder:
+
+```
+cd X-Debug
+```
+
+Install dependencies:
+
+```
+npm install
+```
+
+Run the development server:
+
+```
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+Open in browser:
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+```
+http://localhost:5173
+```
 
-**Use GitHub Codespaces**
+---
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+## 🌐 Deployment
 
-## What technologies are used for this project?
+This project can be easily deployed on:
 
-This project is built with:
+* **Vercel**
+* **Netlify**
+* **Supabase hosting**
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
 
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/f7a673c7-72da-4779-b607-1fd188f6718c) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+GitHub:
+https://github.com/AaineeSinha
