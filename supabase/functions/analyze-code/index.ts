@@ -463,13 +463,22 @@ function generateFullCorrectedCode(code: string, language: string, issues: Issue
   const lines = code.split('\n');
   const correctedLines = [...lines];
 
-  // Apply the first solution for each issue
+  // Apply the first non-trivial solution for each issue, preserving indentation
   issues.forEach(issue => {
     if (issue.solutions && issue.solutions.length > 0) {
-      const bestFix = issue.solutions[0].code;
+      // Pick the first solution that actually changes the code (skip "keep as-is" solutions)
+      const bestSolution = issue.solutions.find(s => s.title.includes('Recommended') || s.title.includes('Upgrade') || s.title.includes('Catch specific') || s.title.includes("Use 'is None'") || s.title.includes('Replace with'))
+        || issue.solutions[1] // fallback to second solution (usually the real fix)
+        || issue.solutions[0];
+      
+      const bestFix = bestSolution.code;
       // Only replace single-line fixes (avoid multi-line replacements conflicting)
       if (!bestFix.includes('\n')) {
-        correctedLines[issue.line - 1] = bestFix;
+        // Preserve original indentation
+        const originalLine = lines[issue.line - 1];
+        const indent = originalLine.match(/^(\s*)/)?.[1] || '';
+        const fixTrimmed = bestFix.trim();
+        correctedLines[issue.line - 1] = indent + fixTrimmed;
       }
     }
   });
