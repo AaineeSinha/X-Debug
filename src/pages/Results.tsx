@@ -292,7 +292,7 @@ const Results = () => {
           </div>
         </Card>
 
-        {/* Full Corrected Code */}
+        {/* Full Corrected Code with Error Highlights */}
         {correctedCode && (
           <Card className="glass-card p-6">
             <div className="flex items-center justify-between mb-4">
@@ -329,10 +329,39 @@ const Results = () => {
               </div>
             </div>
             <p className="text-sm text-muted-foreground mb-3">
-              Here's your complete code with all suggested fixes applied. You can copy it or replace your current code entirely.
+              Here's your complete code with all suggested fixes applied. Lines that were changed are highlighted.
             </p>
+
+            {/* Show what was changed */}
+            {staticIssues.length > 0 && (
+              <div className="mb-4 p-3 bg-muted rounded-md space-y-1">
+                <p className="text-sm font-semibold text-foreground mb-2">📋 Changes made:</p>
+                {staticIssues.map((issue: any, idx: number) => (
+                  <div key={idx} className="flex items-center gap-2 text-sm">
+                    {getSeverityIcon(issue.severity)}
+                    <span className="text-muted-foreground">
+                      Line {issue.line}: {issue.message}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
+
             <div className="bg-background border border-border rounded-md p-4 font-mono text-sm overflow-x-auto max-h-[400px] overflow-y-auto">
-              <pre className="whitespace-pre-wrap">{correctedCode}</pre>
+              <pre className="whitespace-pre-wrap">{correctedCode.split('\n').map((line: string, idx: number) => {
+                const originalLines = code.split('\n');
+                const isChanged = idx < originalLines.length && line !== originalLines[idx];
+                const isNew = idx >= originalLines.length;
+                return (
+                  <div
+                    key={idx}
+                    className={`${isChanged ? 'bg-success/20 border-l-2 border-success pl-2' : isNew ? 'bg-primary/10 border-l-2 border-primary pl-2' : ''}`}
+                  >
+                    <span className="text-muted-foreground mr-3 select-none inline-block w-6 text-right">{idx + 1}</span>
+                    {line}
+                  </div>
+                );
+              })}</pre>
             </div>
           </Card>
         )}
