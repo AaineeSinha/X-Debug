@@ -1,0 +1,14 @@
+{
+  "name": "X-Debug — AI Reverse Debugger",
+  "short_name": "X-Debug",
+  "description": "AI-powered reverse debugger for Python and C: static analysis, ML defect scoring, causal graphs, ranked fixes, and a safe sandbox.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#1f2733",
+  "theme_color": "#1f2733",
+  "icons": [
+    { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
