@@ -1,0 +1,9 @@
+# X-Debug
+
+> AI-powered reverse debugger for Python and C developers.
+
+X-Debug analyzes source code with a three-layer engine (rule-based expert system, ML defect scoring, and NLP explanations), visualizes cause-and-effect as a causal graph, and stages ranked AI fixes in a safe git-branch sandbox that only merges on explicit commit.
+
+## Pages
+- [Home](/): Product overview, engine layers, and key features.
+- [Sign in](/auth): Sign in or create an account.
