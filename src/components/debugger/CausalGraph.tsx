@@ -17,7 +17,7 @@ interface Positioned extends CausalNode {
   y: number;
 }
 
-const WIDTH = 720;
+const WIDTH = 960;
 const COL_H = 460;
 
 export function CausalGraph({ graph }: { graph: CausalGraphData }) {
