@@ -87,6 +87,12 @@ export function CausalGraph({ graph }: { graph: CausalGraphData }) {
           const t = byId.get(e.target)!;
           const highlight = active && (e.source === active || e.target === active);
           const mx = (s.x + t.x) / 2;
+          const my = (s.y + t.y) / 2;
+          // Stagger labels above/below the midline so adjacent labels don't collide.
+          const sameRow = Math.abs(s.y - t.y) < 4;
+          const labelY = sameRow ? my + (i % 2 === 0 ? -18 : 18) : my - 6;
+          const relation = e.relation.length > 14 ? e.relation.slice(0, 13) + "…" : e.relation;
+          const labelW = relation.length * 5.6 + 10;
           return (
             <g key={i} opacity={active && !highlight ? 0.12 : 1}>
               <path
@@ -96,14 +102,25 @@ export function CausalGraph({ graph }: { graph: CausalGraphData }) {
                 strokeWidth={highlight ? 2.5 : 1.5}
                 markerEnd="url(#arrow)"
               />
+              <rect
+                x={mx - labelW / 2}
+                y={labelY - 9}
+                width={labelW}
+                height={14}
+                rx={7}
+                fill="var(--color-card)"
+                opacity={0.92}
+              />
               <text
                 x={mx}
-                y={(s.y + t.y) / 2 - 6}
+                y={labelY}
                 textAnchor="middle"
-                className="fill-muted-foreground"
+                dominantBaseline="middle"
+                className={highlight ? "fill-primary" : "fill-muted-foreground"}
                 style={{ fontSize: 10 }}
               >
-                {e.relation}
+                <title>{e.relation}</title>
+                {relation}
               </text>
             </g>
           );
