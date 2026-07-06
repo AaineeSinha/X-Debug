@@ -98,6 +98,13 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+      { title: "X-Debug — AI Reverse Debugger for Python & C" },
+      { name: "twitter:title", content: "X-Debug — AI Reverse Debugger for Python & C" },
+      { name: "description", content: "X-Debug is an AI-powered reverse debugger for Python and C. Static analysis, ML defect scoring, causal graphs, ranked AI fixes, and a safe git-branch sandbox." },
+      { property: "og:description", content: "X-Debug is an AI-powered reverse debugger for Python and C. Static analysis, ML defect scoring, causal graphs, ranked AI fixes, and a safe git-branch sandbox." },
+      { name: "twitter:description", content: "X-Debug is an AI-powered reverse debugger for Python and C. Static analysis, ML defect scoring, causal graphs, ranked AI fixes, and a safe git-branch sandbox." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/05b881d2-dc31-41db-a3f9-74150dd5ff21/id-preview-97a1deb6--2850dbcf-701d-4278-b745-27782c79e337.lovable.app-1783322912065.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/05b881d2-dc31-41db-a3f9-74150dd5ff21/id-preview-97a1deb6--2850dbcf-701d-4278-b745-27782c79e337.lovable.app-1783322912065.png" },
     ],
     links: [
       {
