@@ -30,8 +30,10 @@ export const analyzeCode = createServerFn({ method: "POST" })
       const { text } = await generateText({
         model,
         messages: [
-          { role: "system", content: buildSystemPrompt() },
-          { role: "user", content: buildUserPrompt(language, data.code) },
+          {
+            role: "user",
+            content: `${buildSystemPrompt()}\n\n${buildUserPrompt(language, data.code)}`,
+          },
         ],
       });
       const parsed = parseJsonLoose(text);
