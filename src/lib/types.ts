@@ -50,6 +50,8 @@ export interface RankedFix {
   confidence: number;
   efficiency: number;
   quality: number;
+  /** Conditions under which this fix may still fail or behave unexpectedly. */
+  limitations: string[];
 }
 
 export interface AnalysisResult {

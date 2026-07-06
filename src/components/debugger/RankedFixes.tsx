@@ -1,6 +1,7 @@
 import type { RankedFix } from "@/lib/types";
 import { cn } from "@/lib/utils";
-import { Sparkles, Check } from "lucide-react";
+import { Sparkles, Check, Eye, Replace, AlertTriangle } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 function Meter({ label, value }: { label: string; value: number }) {
   return (
@@ -23,10 +24,14 @@ export function RankedFixes({
   fixes,
   activeId,
   onPreview,
+  onApply,
+  applyingId,
 }: {
   fixes: RankedFix[];
   activeId: string | null;
   onPreview: (fix: RankedFix) => void;
+  onApply: (fix: RankedFix) => void;
+  applyingId: string | null;
 }) {
   if (fixes.length === 0) {
     return <p className="text-sm text-muted-foreground">No alternative fixes generated.</p>;
@@ -35,12 +40,12 @@ export function RankedFixes({
     <div className="space-y-3">
       {fixes.map((fix, i) => {
         const active = fix.id === activeId;
+        const applying = fix.id === applyingId;
         return (
-          <button
+          <div
             key={fix.id}
-            onClick={() => onPreview(fix)}
             className={cn(
-              "clay-sm w-full rounded-2xl border bg-card p-4 text-left transition-all hover:-translate-y-0.5",
+              "clay-sm w-full rounded-2xl border bg-card p-4 text-left transition-all",
               active ? "border-primary clay-glow" : "border-border/60",
             )}
           >
@@ -69,7 +74,46 @@ export function RankedFixes({
               <Meter label="Efficiency" value={fix.efficiency} />
               <Meter label="Quality" value={fix.quality} />
             </div>
-          </button>
+
+            {fix.limitations.length > 0 && (
+              <div className="clay-inset mt-3 rounded-xl bg-warning/5 p-3">
+                <div className="mb-1.5 flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-warning">
+                  <AlertTriangle className="h-3.5 w-3.5" />
+                  When this may not work
+                </div>
+                <ul className="space-y-1">
+                  {fix.limitations.map((lim, li) => (
+                    <li key={li} className="flex gap-1.5 text-xs text-muted-foreground">
+                      <span className="mt-0.5 text-warning">•</span>
+                      <span>{lim}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            <div className="mt-4 flex flex-wrap gap-2">
+              <Button
+                type="button"
+                variant="clay"
+                size="sm"
+                onClick={() => onPreview(fix)}
+                disabled={applyingId !== null}
+              >
+                <Eye className="h-4 w-4" /> {active ? "Previewing" : "Preview diff"}
+              </Button>
+              <Button
+                type="button"
+                variant="hero"
+                size="sm"
+                onClick={() => onApply(fix)}
+                disabled={applyingId !== null}
+              >
+                <Replace className="h-4 w-4" />
+                {applying ? "Replacing & re-running…" : "Replace with solution"}
+              </Button>
+            </div>
+          </div>
         );
       })}
     </div>

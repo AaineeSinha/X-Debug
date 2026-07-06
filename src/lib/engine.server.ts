@@ -52,7 +52,8 @@ export function buildUserPrompt(language: DebugLanguage, code: string): string {
     "modifiedCode": string (full corrected source for this alternative),
     "confidence": number (0..1),
     "efficiency": number (0..1),
-    "quality": number (0..1)
+    "quality": number (0..1),
+    "limitations": [string] (1-3 concrete conditions/edge cases under which THIS fix could still fail, break, or be the wrong choice)
   }]
 }
 Provide 2-3 alternative rankedFixes ordered best-first. Build a causalGraph with 4-9 nodes that traces how the bug propagates (variable -> function -> control -> bug). Keep node ids short and referenced by edges.
@@ -163,6 +164,9 @@ export function normalizeAnalysis(raw: unknown, originalCode: string): AnalysisR
           confidence: clamp01(fx.confidence),
           efficiency: clamp01(fx.efficiency),
           quality: clamp01(fx.quality),
+          limitations: Array.isArray(fx.limitations)
+            ? (fx.limitations as unknown[]).map((l) => String(l)).filter(Boolean).slice(0, 4)
+            : [],
         };
       })
     : [];
