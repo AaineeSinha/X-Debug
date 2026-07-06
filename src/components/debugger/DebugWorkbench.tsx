@@ -95,6 +95,7 @@ export function DebugWorkbench() {
   const runAnalyze = useServerFn(analyzeCode);
   const [running, setRunning] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [applyingId, setApplyingId] = useState<string | null>(null);
 
   const counts = {
     critical: analysis?.findings.filter((f) => f.severity === "critical").length ?? 0,
@@ -102,21 +103,35 @@ export function DebugWorkbench() {
     informational: analysis?.findings.filter((f) => f.severity === "informational").length ?? 0,
   };
 
-  const handleRun = async () => {
-    if (!liveCode.trim()) {
+  const runAnalysisFor = async (code: string, clearAll: boolean) => {
+    if (!code.trim()) {
       toast.error("Add some code to analyze first.");
       return;
     }
     setRunning(true);
-    reset();
+    if (clearAll) reset();
+    else discard();
     try {
-      const result = await runAnalyze({ data: { language, code: liveCode } });
+      const result = await runAnalyze({ data: { language, code } });
       setAnalysis(result);
       toast.success(`Analysis complete — ${result.findings.length} finding(s).`);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Analysis failed.");
     } finally {
       setRunning(false);
+    }
+  };
+
+  const handleRun = () => runAnalysisFor(liveCode, true);
+
+  const handleApply = async (fix: (typeof analysis extends null ? never : NonNullable<typeof analysis>)["rankedFixes"][number]) => {
+    setApplyingId(fix.id);
+    setLiveCode(fix.modifiedCode);
+    try {
+      toast.success(`Applied “${fix.title}” — re-analyzing…`);
+      await runAnalysisFor(fix.modifiedCode, false);
+    } finally {
+      setApplyingId(null);
     }
   };
 
@@ -289,6 +304,8 @@ export function DebugWorkbench() {
               fixes={analysis.rankedFixes}
               activeId={proposedFix?.id ?? null}
               onPreview={stageFix}
+              onApply={handleApply}
+              applyingId={applyingId}
             />
           </SectionCard>
           <div className="lg:col-span-2">
