@@ -67,7 +67,7 @@ export function CausalGraph({ graph }: { graph: CausalGraphData }) {
 
   return (
     <div className="w-full overflow-x-auto">
-      <svg viewBox={`0 0 ${WIDTH} ${COL_H}`} className="min-w-[640px] w-full" role="img">
+      <svg viewBox={`0 0 ${WIDTH} ${COL_H}`} className="min-w-[820px] w-full" role="img">
         <defs>
           <marker
             id="arrow"
