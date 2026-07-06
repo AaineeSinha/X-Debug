@@ -17,7 +17,7 @@ import {
 import { useSandbox } from "@/contexts/SandboxProvider";
 import { analyzeCode } from "@/lib/analyze.functions";
 import { supabase } from "@/integrations/supabase/client";
-import type { DebugLanguage } from "@/lib/types";
+import type { DebugLanguage, RankedFix } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { CodeEditor } from "./CodeEditor";
 import { DefectGauge } from "./DefectGauge";
@@ -124,7 +124,7 @@ export function DebugWorkbench() {
 
   const handleRun = () => runAnalysisFor(liveCode, true);
 
-  const handleApply = async (fix: (typeof analysis extends null ? never : NonNullable<typeof analysis>)["rankedFixes"][number]) => {
+  const handleApply = async (fix: RankedFix) => {
     setApplyingId(fix.id);
     setLiveCode(fix.modifiedCode);
     try {
